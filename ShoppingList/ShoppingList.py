@@ -249,6 +249,7 @@ f"""{colored("[SHOW]", 'blue')} Show Grocery List
 {colored("[TOTAL-DEL]", 'blue')} Remove item completely
 {colored("[SHOW-POP]", 'blue')} Show items by popularity
 {colored("[TOTAL-SUM]", 'blue')} Show the ammount of products
+{colored("[TOP3]", 'blue')} Show the Top 3 of products
 {colored("[SEARCH]", 'blue')} Show the ammount of products
 {colored("[LOGOUT]", 'blue')} Logout
 {colored("[EXIT]", 'blue')} Exit program
