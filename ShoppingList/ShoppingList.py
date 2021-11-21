@@ -197,6 +197,30 @@ def search(glist, key):
             return products_contains(glist, key.replace("*", ''))
     return colored("Product not on the list", 'red')
 
+def get_top_three(glist):
+    """
+    Recieves all clients' lists and create a top 3 dictionary
+    of all of them
+    :param glist: All users' Grocery List
+    :type glist: dict
+    :return: Dictionary of Top 3 items
+    :rtype: dict
+    """
+    items = {}
+    for list in glist.keys():
+        for item, value in glist[list].items():
+            if item in items:
+                items[item] += value
+            else:
+                items[item] = value
+    top_three = {}
+    for i in range(3):
+        new_item = max(items, key=lambda item: items[item])
+        top_three[new_item] = items[new_item]
+        del items[new_item]
+
+    return top_three
+
 
 def menu(grocery_list, user):
     """
@@ -263,6 +287,8 @@ f"""{colored("[SHOW]", 'blue')} Show Grocery List
                                                                                          grocery_list[user]) else f"{item} is not on the list")
             case "SHOW-POP":
                 show_list(grocery_list[user], False)
+            case "TOP3":
+                show_list(get_top_three(grocery_list),True)
             case "TOTAL-SUM":
                 print(f"{total_sum(grocery_list[user])} items on the list" if total_sum(grocery_list[user]) > 0 else colored(
                     "No items on the list!", 'red'))
