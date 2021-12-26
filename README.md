@@ -67,10 +67,8 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-In this project I worked with Spotify's API and Genius'.<br />
-At the first run of the server it will first build it's <br />
-database each folder is named after an album, <br />
-and in the folder TXT files named after the album's song containing the song's lyrics<br />
+In this project I worked with Spotify's API and Genius'. At the first run of the server it will first build it's <br />
+database each folder is named after an album, and in the folder TXT files named after the album's song containing the song's lyrics<br />
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
