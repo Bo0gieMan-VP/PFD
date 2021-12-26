@@ -65,7 +65,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 <div align="center">
-  <img src="images/client-screen.jpg alt="Screenshot of the program">
+  <img src="images/client-screen.jpg" alt="Screenshot of the program">
 
 In this project I worked with Spotify's API and Genius'. At the first run of the server it will first build it's <br />
 database each folder is named after an album, and in the folder TXT files named after the album's song containing the song's lyrics<br />
