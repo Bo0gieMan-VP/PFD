@@ -109,6 +109,9 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 ## Commands
 
 ### User Commands
+| Command   |   Argument   |   Description   |
+|:----------|:------------:|:----------------|
+| GETALBUMS |  None| Get a list of Pink Floyd's albums|
 * GETALBUMS
 * FINDALBUM `[Name of Album]`
 * ALBUMDUR `[Name of Album]`
