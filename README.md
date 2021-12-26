@@ -112,15 +112,15 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 | Command   |   Argument   |   Description   |
 |:----------|:------------:|:----------------|
 | GETALBUMS |  None| Get a list of Pink Floyd's albums|
-* GETALBUMS
-* FINDALBUM `[Name of Album]`
-* ALBUMDUR `[Name of Album]`
-* LISTSONGS `[Name of Album]`
-* FINDSONG `[Name of Song]`
-* HOWLONG `[Name of Song]`
-* GETLYRICS `[Name of Song]`
-* FINDLYRICS `[Lyrics]`
-* GOADMIN `[Password]`
+| FINDALBUM | Name of Album | Find whether an album is Pink Floyd's |
+| ALBUMDUR | Name of Album | Get the total length of an album |
+| LISTSONGS | Name of Album | Get a list of all the songs in the album |
+| FINDSONG | Name of Song | Find whether a song is Pink Floyd's, if yes, you'll see it's album |
+| HOWLONG | Name of Song | Get the song's length |
+| GETLYRICS | Name of Song | Get the song's lyrics |
+| FINDLYRICS | Lyrics | Find songs containing the specified lyrics (can be more than one word) |
+| GOADMIN | Password | Get Administrator Privileges |
+
 
 ### Admin Commands
 * UPDATE
