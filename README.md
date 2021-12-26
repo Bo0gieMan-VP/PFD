@@ -25,7 +25,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Bo0gieMan-VP/Pink_Floyd_Discography_Server">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="images/logo.png" alt="Logo" width="300" height="auto">
   </a>
 
 <h3 align="center">Pink Floyd Discography Server</h3>
