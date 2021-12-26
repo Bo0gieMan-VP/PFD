@@ -67,8 +67,8 @@
 <div align="center">
   <img src="images/client-screen.jpg" alt="Screenshot of the program">
 
-In this project I worked with Spotify's API and Genius'. At the first run of the server it will first build it's <br />
-database each folder is named after an album, and in the folder TXT files named after the album's song containing the song's lyrics<br />
+Socket based project, Server-side that can give information about Pink Floyd <br />
+On the Client-side the client can use commands to get the information from the server<br />
 </div>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -88,7 +88,14 @@ database each folder is named after an album, and in the folder TXT files named 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+### STEP 1
+When running the server for the first time the server will start building it's database<br />
+This will take some time
+
+<img src="images/step-1.jpg">
+
+### STEP 2
+When the server is done building it's database it will notify
 
 _For more examples, please refer to the [Documentation](https://example.com)_
 
