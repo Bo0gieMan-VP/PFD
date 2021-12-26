@@ -141,7 +141,7 @@ def serve_client(client_socket, address, LISTENING_SOCKET, clients):
             # //////////////////////////////////////////////////////////////////////////////////////////////////////////
             case 'GETALBUMS':
                 msg = color['TWITTER_BLUE'] + "\n\tAll Pink Floyd's Albums: " + color['DEFAULT']
-                send_to_client(client_socket,"LIST",msg + "|" + spotify.get_album_names())
+                send_to_client(client_socket,"LIST", msg + "|" + spotify.get_album_names())
             case 'FINDALBUM':
                 if len(content) > 0:
                     songs = spotify.is_an_album(content.title())
@@ -300,8 +300,8 @@ def serve_client(client_socket, address, LISTENING_SOCKET, clients):
                                get_string('ERROR', "Use 'HELP' to see available commands"))
     client_socket.close()
 
-import genius
-import spotify
+
+from apis import genius, spotify
 
 color = {
     'RED'                : '\033[1;91m',
@@ -364,9 +364,9 @@ def main():
     # Cleans the screen
     os.system('cls')
     # Checks if there's a database, if no, creates it
-    if not os.path.exists('albums_genius'):
+    if not os.path.exists('data/albums_genius'):
         print(get_string('SERVER', 'Building database for the first time...'))
-        os.mkdir('albums_genius')
+        os.mkdir('data/albums_genius')
         genius.update_db()
     # Opening the listening socket and informs that the server is up and running
     LISTENING_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
