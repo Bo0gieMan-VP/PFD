@@ -117,6 +117,17 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 * HOWLONG `[Name of Song]`
 * GETLYRICS `[Name of Song]`
 * FINDLYRICS `[Lyrics]`
+* GOADMIN `[Password]`
+
+### Admin Commands
+* UPDATE
+* SHUTDOWN
+* SCLEAR
+* GOUSER
+
+### Utility Commands
+* CLEAR
+* QUIT
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
