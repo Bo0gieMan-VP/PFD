@@ -368,7 +368,6 @@ def main():
         print(get_string('SERVER', 'Building database for the first time...'))
         os.mkdir('data/albums_genius')
         genius.update_db()
-    # Cleans the screen once again (to get rid of the database building messages)
     os.system('cls')
     # Opening the listening socket and informs that the server is up and running
     LISTENING_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
