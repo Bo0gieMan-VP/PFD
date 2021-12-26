@@ -108,6 +108,16 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- COMMANDS -->
 ## Commands
 
+### User Commands
+* GETALBUMS
+* FINDALBUM `[Name of Album]`
+* ALBUMDUR `[Name of Album]`
+* LISTSONGS `[Name of Album]`
+* FINDSONG `[Name of Song]`
+* HOWLONG `[Name of Song]`
+* GETLYRICS `[Name of Song]`
+* FINDLYRICS `[Lyrics]`
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- LICENSE -->
