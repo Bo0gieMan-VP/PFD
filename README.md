@@ -67,7 +67,10 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-Here's a blank template to get started: To avoid retyping too much info. Do a search and replace with your text editor for the following: `Bo0gieMan-VP`, `repo_name`, `twitter_handle`, `bennykerido`, `kerido112@gmail.com`, `email_client`, `Pink Floyd Discography Server`, `Studential Project of Pink Floyd's Discography`
+In this project I worked with Spotify's API and Genius'.
+At the first run of the server it will first build it's 
+database each folder is named after an album, 
+and in the folder TXT files named after the album's song containing the song's lyrics
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -96,7 +99,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
