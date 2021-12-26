@@ -123,14 +123,19 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 
 ### Admin Commands
-* UPDATE
-* SHUTDOWN
-* SCLEAR
-* GOUSER
+| Command   |   Description   |
+|:----------|:----------------|
+| **UPDATE** | Update the server's database |
+| **SHUTDOWN** | Shut the server down |
+| **SCLEAR** | Clear the server's window |
+| **GOUSER** | Get User Privileges |
+
 
 ### Utility Commands
-* CLEAR
-* QUIT
+| Command   |   Description   |
+|:----------|:----------------|
+| **CLEAR** | Clear the client's window |
+| **QUIT** | Kill the connection and exit the program |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
