@@ -104,6 +104,14 @@ When the server is done building it's database it will notify
 Start the client's window and insert the server's IP address.<br />
 _if the server running on the same PC you can use `my_ip`_
 
+<img src="images/step-3.jpg">
+
+### STEP 4
+Now that you can see the welcome screen you're good to go!<br />
+_remember, if you don't know what you do you can always type `HELP`_
+
+<img src="images/step-4.jpg">
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- COMMANDS -->
