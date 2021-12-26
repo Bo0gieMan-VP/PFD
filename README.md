@@ -100,8 +100,9 @@ When the server is done building it's database it will notify
 
 <img src="images/step-2.jpg">
 
-
-_For more examples, please refer to the [Documentation](https://example.com)_
+### STEP 3
+Start the client's window and insert the server's IP address.<br />
+_if the server running on the same PC you can use `my_ip`_
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
