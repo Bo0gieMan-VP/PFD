@@ -363,9 +363,14 @@ ADMIN_HELP = f"""
 def main():
     # Cleans the screen
     os.system('cls')
+    # Checks if there's a database, if no, creates it
+    if not os.path.exists('albums_genius'):
+        print(get_string('SERVER', 'Building database for the first time...'))
+        os.mkdir('albums_genius')
+        genius.update_db()
     # Opening the listening socket and informs that the server is up and running
     LISTENING_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    print(get_string('SERVER', 'Server is running...'))
+    print(get_string('SERVER', 'Server is ready for clients'))
     server_address = ("", 8080)
     LISTENING_SOCKET.bind(server_address)
     print(LISTENING_SOCKET.getsockname())
