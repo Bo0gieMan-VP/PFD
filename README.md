@@ -97,6 +97,9 @@ This will take some time
 ### STEP 2
 When the server is done building it's database it will notify
 
+<img src="images/step-2.jpg">
+
+
 _For more examples, please refer to the [Documentation](https://example.com)_
 
 <p align="right">(<a href="#top">back to top</a>)</p>
