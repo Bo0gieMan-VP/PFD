@@ -1,5 +1,7 @@
 import os
 import json
+import time
+
 import lyricsgenius
 import requests
 from lxml import html
@@ -53,46 +55,53 @@ def get_lyrics_from_web(path):
 genius = lyricsgenius.Genius(access_token='mviROzWLzm_ygPnLMVaghIXr5xEPCPFUfWi_zZQTR5tGTap6PU6Me34impgkXpIO',
                              excluded_terms=["Remix", "Live"], remove_section_headers=True, verbose=False)
 
-def update_db():
-    print(get_string('GENIUS', "Gathering information..."))
-    pink_floyd = {}
-    counter = 0
-    albums = genius.artist_albums(artist_id=694, per_page=50)
-    for album in albums['albums']:
-        name = album['name'].replace("/", "")
-        if 'more' in name.lower():
-            name = 'More'
+def update_db(force_update=False):
+    if not force_update and not os.path.exists('data/genius_database.json'):
+        force_update = True
+    if force_update:
+        print(get_string('GENIUS', "Gathering information..."))
+        pink_floyd = {}
+        counter = 0
+        albums = genius.artist_albums(artist_id=694, per_page=50)
+        for album in albums['albums']:
+            name = album['name'].replace("/", "")
+            if 'more' in name.lower():
+                name = 'More'
 
-        if not any(word in name.lower() for word in BAD_ALBUM_WORDS):
-            album_info = {'name': name, 'id': album['id']}
-            pink_floyd[counter] = album_info
-            counter += 1
-    del albums, album_info
+            if not any(word in name.lower() for word in BAD_ALBUM_WORDS):
+                album_info = {'name': name, 'id': album['id']}
+                pink_floyd[counter] = album_info
+                counter += 1
+        del albums, album_info
 
-    print(get_string('GENIUS', "Got all albums"))
+        print(get_string('GENIUS', "Got all albums"))
 
-    for album in pink_floyd.keys():
-        songs = genius.album_tracks(album_id=pink_floyd[album]['id'])
-        songs_ids = {}
-        for song in songs['tracks']:
-            song_num = song['number']
-            name = song['song']['title'].replace('\xa0', ' ')
-            songs_ids[song_num] = {name: song['song']['id'] , 'path' : song['song']['path']}
-        pink_floyd[album]['songs'] = songs_ids
-    del songs, songs_ids, song, album, song_num, name
+        for album in pink_floyd.keys():
+            songs = genius.album_tracks(album_id=pink_floyd[album]['id'])
+            songs_ids = {}
+            for song in songs['tracks']:
+                song_num = song['number']
+                name = song['song']['title'].replace('\xa0', ' ')
+                songs_ids[song_num] = {name: song['song']['id'] , 'path' : song['song']['path']}
+            pink_floyd[album]['songs'] = songs_ids
+        del songs, songs_ids, song, album, song_num, name
 
-    print(get_string('GENIUS', "Got all songs"))
+        print(get_string('GENIUS', "Got all songs"))
 
-    with open('data/genius_database.json', 'w') as f:
-        json_data = json.dumps(pink_floyd, indent=4)
-        f.write(json_data)
+        with open('data/genius_database.json', 'w') as f:
+            json_data = json.dumps(pink_floyd, indent=4)
+            f.write(json_data)
 
     create_database()
 
 def create_database():
     with open('data/genius_database.json', 'r') as f:
         pink_floyd_db = json.loads(f.read())
-
+    total_song = 0
+    for album in pink_floyd_db:
+        total_song += len(pink_floyd_db[album]['songs'])
+    SONG_PERCENT = 100 / total_song
+    songs_done = 0
     print(get_string('GENIUS', "Working on lyrics..."))
     for album in pink_floyd_db.keys():
         album_name = clean_name(pink_floyd_db[album]['name'])
@@ -104,12 +113,14 @@ def create_database():
                 lyrics = get_lyrics_from_web(path)
                 with open('data/albums_genius/' +album_name + "/" + clean_name(songname) + ".txt", 'w') as f:
                     f.write(lyrics)
+                songs_done += SONG_PERCENT
+                print(f"[{(int(songs_done // 2) * '█') + (int(50 - int(songs_done // 2)) * ' ')}]  {int(songs_done)}% Done", end="\r")
+    print()
     print(get_string('GENIUS', "Done updating!"))
 
 
 def main():
-   # create_database()
-    pass
+    create_database()
 
 if __name__ == "__main__":
     main()
