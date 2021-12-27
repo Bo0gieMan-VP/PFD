@@ -67,7 +67,7 @@ On the Client-side the client can use commands to get the information from the s
 
 ### Built With
 
-* [Python](https://www.python.org/)
+[Python](https://www.python.org/)
 <details>
   <summary>Used Modules</summary>
   <ol>
@@ -79,7 +79,7 @@ On the Client-side the client can use commands to get the information from the s
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
-___
+
 
 <!-- USAGE EXAMPLES -->
 ## Usage
