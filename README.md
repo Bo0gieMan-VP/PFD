@@ -79,9 +79,10 @@ On the Client-side the client can use commands to get the information from the s
 ### Built With
 
 * [Python](https://www.python.org/)
-* [Requests](https://docs.python-requests.org/en/latest/)
-* [Spotipy](https://spotipy.readthedocs.io/en/2.19.0/)
-* [LyricsGenius](https://pypi.org/project/lyricsgenius/)
++ Used Modules
+  * [Requests](https://docs.python-requests.org/en/latest/)
+  * [Spotipy](https://spotipy.readthedocs.io/en/2.19.0/)
+  * [LyricsGenius](https://pypi.org/project/lyricsgenius/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
