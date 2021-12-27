@@ -122,6 +122,7 @@ _remember, if you don't know what you do you can always type `HELP`_
 | **FINDSONG** | Name of Song | Find whether a song is Pink Floyd's, if yes, you'll see it's album |
 | **HOWLONG** | Name of Song | Get the song's length |
 | **GETLYRICS** | Name of Song | Get the song's lyrics |
+| **PLAY** | Name of Song | Play the selected song |
 | **FINDLYRICS** | Lyrics | Find songs containing the specified lyrics (can be more than one word) |
 | **GOADMIN** | Password | Get Administrator Privileges |
 
