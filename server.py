@@ -217,6 +217,16 @@ def serve_client(client_socket, address, LISTENING_SOCKET, clients):
                         send_to_client(client_socket, "LYRICS", content.title() + "|" + lyrics)
                 else:
                     send_to_client(client_socket, 'STR', get_string('ERROR', 'Syntax Error: '+ command + " [Name of Song]"))
+            case 'PLAY':
+                if len(content) > 0:
+                    for i in range(3, 0, -1):
+                        send_to_client(client_socket, 'PLAY', get_string('PFD', 'Song will be played in ' + str(i)))
+                        time.sleep(1)
+                    send_to_client(client_socket, 'PLAY', get_string('PFD', 'Enjoy ' + content.title() + ' by Pink Floyd...'))
+                    youtube.play_song(content.lower())
+                else:
+                    send_to_client(client_socket, 'STR',
+                                   get_string('ERROR', 'Syntax Error: ' + command + " [Name of Song]"))
             # //////////////////////////////////////////////////////////////////////////////////////////////////////////
             # --------------------------------------- Lyrics Commands --------------------------------------------------
             # //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -301,7 +311,7 @@ def serve_client(client_socket, address, LISTENING_SOCKET, clients):
     client_socket.close()
 
 
-from apis import genius, spotify
+from apis import genius, spotify, youtube
 
 color = {
     'RED'                : '\033[1;91m',
@@ -372,7 +382,7 @@ def main():
     # Opening the listening socket and informs that the server is up and running
     LISTENING_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print(get_string('SERVER', 'Server is ready for clients'))
-    server_address = ("", 8080)
+    server_address = ("", 9595)
     LISTENING_SOCKET.bind(server_address)
     print(LISTENING_SOCKET.getsockname())
     # Waiting for clients to connect

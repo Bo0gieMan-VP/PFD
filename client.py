@@ -43,7 +43,7 @@ def translate_repsonse(server_response):
     :return: a Tuple with the value and Message (if there is one)
     :rtype: tuple
     """
-    special_types = ['STR', 'CLEAR', 'UPDATE', 'QUIT', 'SHT']
+    special_types = ['STR', 'CLEAR', 'UPDATE', 'QUIT', 'SHT', 'PLAY']
     t = server_response[0:6].strip()
     if t not in special_types:
         msg, content = server_response[7:].split("|")
@@ -66,6 +66,8 @@ def translate_repsonse(server_response):
             global is_admin
             is_admin = bool(int(msg))
             print(content)
+        case 'PLAY':
+            return content
         case 'CLEAR':
             os.system('cls')
             print(content)
@@ -135,6 +137,18 @@ def client_to_server(my_socket):
                 print(data_content)
                 my_socket.close()
                 break
+            case 'PLAY':
+                print(data_content, end='\r')
+                for i in range(2, 0, -1):
+                    data = my_socket.recv(4096).decode()
+                    data_type = data[0:6].strip()
+                    data_content = translate_repsonse(data)
+                    print(data_content, end='\r')
+                print()
+                data = my_socket.recv(4096).decode()
+                data_type = data[0:6].strip()
+                data_content = translate_repsonse(data)
+                print(data_content)
             case 'UPDATE':
                 print(data_content)
                 if is_admin:
@@ -165,7 +179,7 @@ def main():
         ip_add = ip_add if ip_add != "my_ip" else get_ip()
         # Tries to connect, if fails informs that the IP address is wrong
         try:
-            my_socket.connect((ip_add, 8080))
+            my_socket.connect((ip_add, 9595))
             break
         except:
             print(COLOR['RED'] + 'Wrong IP Address' + COLOR['DEFAULT'])
