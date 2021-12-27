@@ -76,6 +76,14 @@ On the Client-side the client can use commands to get the information from the s
     <li><a href="https://pypi.org/project/lyricsgenius/">LyricsGenius</a></li>
   </ol>
 </details>
+<details>
+  <summary>Used APIs</summary>
+  <ol>
+    <li>Spotify</li>
+    <li>Genius</li>
+    <li>YouTube Data</li>
+  </ol>
+</details>
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
