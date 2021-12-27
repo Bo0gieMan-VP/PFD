@@ -82,9 +82,9 @@ On the Client-side the client can use commands to get the information from the s
 <details>
   <summary>Used Modules</summary>
   <ol>
-    <li>[Requests](https://docs.python-requests.org/en/latest/)</li>
-    <li>[Spotipy](https://spotipy.readthedocs.io/en/2.19.0/)</li>
-    <li>[LyricsGenius](https://pypi.org/project/lyricsgenius/)</li>
+    <li><a href="https://docs.python-requests.org/en/latest/">Requests</a></li>
+    <li><a href="https://spotipy.readthedocs.io/en/2.19.0/">Spotipy</a></li>
+    <li><a href="https://pypi.org/project/lyricsgenius/">LyricsGenius</a></li>
   </ol>
 </details>
 
