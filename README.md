@@ -24,7 +24,7 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/Bo0gieMan-VP/Pink_Floyd_Discography_Server">
+  <a href="https://github.com/Bo0gieMan-VP/PFD">
     <img src="images/logo.png" alt="Logo" width="600" height="auto">
   </a>
 
@@ -34,11 +34,11 @@
     Studential Project of Pink Floyd's Discography
     <br />
     <br />
-    <a href="https://github.com/Bo0gieMan-VP/Pink_Floyd_Discography_Server">View Demo</a>
+    <a href="https://github.com/Bo0gieMan-VP/PFD">View Demo</a>
     ·
-    <a href="https://github.com/Bo0gieMan-VP/Pink_Floyd_Discography_Server/issues">Report Bug</a>
+    <a href="https://github.com/Bo0gieMan-VP/PFD/issues">Report Bug</a>
     ·
-    <a href="https://github.com/Bo0gieMan-VP/Pink_Floyd_Discography_Server/issues">Request Feature</a>
+    <a href="https://github.com/Bo0gieMan-VP/PFD/issues">Request Feature</a>
   </p>
 </div>
 
@@ -162,7 +162,7 @@ See `LICENSE.txt` for more information.
 
 Benny Kerido - kerido112@gmail.com
 
-Project Link: [https://github.com/Bo0gieMan-VP/Pink_Floyd_Discography_Server](https://github.com/Bo0gieMan-VP/Pink_Floyd_Discography_Server)
+Project Link: [https://github.com/Bo0gieMan-VP/PFD](https://github.com/Bo0gieMan-VP/PFD)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -170,16 +170,16 @@ Project Link: [https://github.com/Bo0gieMan-VP/Pink_Floyd_Discography_Server](ht
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/Bo0gieMan-VP/Pink_Floyd_Discography_Server.svg?style=for-the-badge
-[contributors-url]: https://github.com/Bo0gieMan-VP/Pink_Floyd_Discography_Server/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Bo0gieMan-VP/Pink_Floyd_Discography_Server.svg?style=for-the-badge
-[forks-url]: https://github.com/Bo0gieMan-VP/Pink_Floyd_Discography_Server/network/members
-[stars-shield]: https://img.shields.io/github/stars/Bo0gieMan-VP/Pink_Floyd_Discography_Server.svg?style=for-the-badge
-[stars-url]: https://github.com/Bo0gieMan-VP/Pink_Floyd_Discography_Server/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Bo0gieMan-VP/Pink_Floyd_Discography_Server.svg?style=for-the-badge
-[issues-url]: https://github.com/Bo0gieMan-VP/Pink_Floyd_Discography_Server/issues
-[license-shield]: https://img.shields.io/github/license/Bo0gieMan-VP/Pink_Floyd_Discography_Server.svg?style=for-the-badge
-[license-url]: https://github.com/Bo0gieMan-VP/Pink_Floyd_Discography_Server/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/Bo0gieMan-VP/PFD.svg?style=for-the-badge
+[contributors-url]: https://github.com/Bo0gieMan-VP/PFD/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Bo0gieMan-VP/PFD.svg?style=for-the-badge
+[forks-url]: https://github.com/Bo0gieMan-VP/PFD/network/members
+[stars-shield]: https://img.shields.io/github/stars/Bo0gieMan-VP/PFD.svg?style=for-the-badge
+[stars-url]: https://github.com/Bo0gieMan-VP/PFD/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Bo0gieMan-VP/PFD.svg?style=for-the-badge
+[issues-url]: https://github.com/Bo0gieMan-VP/PFD/issues
+[license-shield]: https://img.shields.io/github/license/Bo0gieMan-VP/PFD.svg?style=for-the-badge
+[license-url]: https://github.com/Bo0gieMan-VP/PFD/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/bennykerido/
 [product-screenshot]: images/client-screen.jpg
