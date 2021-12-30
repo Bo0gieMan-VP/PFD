@@ -43,7 +43,7 @@ def translate_repsonse(server_response):
     :return: a Tuple with the value and Message (if there is one)
     :rtype: tuple
     """
-    special_types = ['STR', 'CLEAR', 'UPDATE', 'QUIT', 'SHT', 'PLAY']
+    special_types = ['STR', 'CLEAR', 'QUIT', 'SHT', 'PLAY', 'CNFG']
     t = server_response[0:6].strip()
     if t not in special_types:
         msg, content = server_response[7:].split("|")
@@ -71,7 +71,7 @@ def translate_repsonse(server_response):
         case 'CLEAR':
             os.system('cls')
             print(content)
-        case 'SHT' | 'QUIT' | 'UPDATE':
+        case 'SHT' | 'QUIT' | 'CNFG':
             return content
 
 def print_list(client_list):
@@ -112,17 +112,16 @@ def client_to_server(my_socket):
     :type my_socket: socket obj
     :return: None
     """
-    content = None
     while True:
         msg = input((COLOR['TWITTER_BLUE'] + 'PFD> ' if not is_admin else COLOR['GREEN'] + 'PFD# ') + COLOR['DEFAULT'])
         space = msg.find(" ")
         if space != -1:
-            command = msg[0:space].upper()
+            command = msg[0:space]
             length = len(msg[space+1:])
             content = msg[space+1:]
             msg = "%10s %4d %s" % (command, length, content)
         else:
-            command = msg.upper()
+            command = msg
             msg = "%10s %4d" % (command, 0)
         try:
             my_socket.send(msg.encode())
@@ -131,7 +130,9 @@ def client_to_server(my_socket):
             break
         data = my_socket.recv(4096).decode()
         data_type = data[0:6].strip()
-        data_content = translate_repsonse(data)
+        if data_type != "CNFG":
+            data_content = translate_repsonse(data)
+
         match (data_type):
             case 'SHT':
                 print(data_content)
@@ -140,29 +141,39 @@ def client_to_server(my_socket):
             case 'PLAY':
                 print(data_content, end='\r')
                 for i in range(2, 0, -1):
-                    data = my_socket.recv(4096).decode()
-                    data_type = data[0:6].strip()
+                    data = my_socket.recv(1024).decode()
                     data_content = translate_repsonse(data)
                     print(data_content, end='\r')
-                print()
-                data = my_socket.recv(4096).decode()
-                data_type = data[0:6].strip()
+                data = my_socket.recv(1024).decode()
                 data_content = translate_repsonse(data)
                 print(data_content)
-            case 'UPDATE':
-                print(data_content)
-                if is_admin:
-                    prompt = (COLOR['TWITTER_BLUE'] + 'PFD> ' if not is_admin else COLOR['GREEN'] + 'PFD# ') + COLOR['DEFAULT']
-                    user_input = input( prompt + "Choose method: ")
-                    msg = "%10s %4d" % ("UPDATE", int(user_input))
-                    my_socket.send(msg.encode())
-                    data = my_socket.recv(4096).decode()
-                    data_content = translate_repsonse(data)
-                    print(data_content)
-                    data = my_socket.recv(4096).decode()
-                    data_content = translate_repsonse(data)
-                    print(data_content)
-                continue
+            # case 'UPDATE':
+            #     print(data_content)
+            #     if is_admin:
+            #         prompt = (COLOR['TWITTER_BLUE'] + 'PFD> ' if not is_admin else COLOR['GREEN'] + 'PFD# ') + COLOR['DEFAULT']
+            #         user_input = input( prompt + "Choose method: ")
+            #         msg = "%10s %4d" % ("UPDATE", int(user_input))
+            #         my_socket.send(msg.encode())
+            #         data = my_socket.recv(4096).decode()
+            #         data_content = translate_repsonse(data)
+            #         print(data_content)
+            #         data = my_socket.recv(4096).decode()
+            #         data_content = translate_repsonse(data)
+            #         print(data_content)
+            #     continue
+            case 'CNFG':
+                config = translate_repsonse(data)
+                while(data_type == 'CNFG'):
+                    if config == "":
+                        data = my_socket.recv(4096).decode()
+                        data_type = data[0:6].strip()
+                        if data_type != 'CNFG':
+                            config = translate_repsonse(data)
+                            break
+                        config = translate_repsonse(data)
+                    user_input = input(config + " ")
+                    my_socket.send(user_input.encode())
+                    config = ""
             case 'QUIT':
                 print(data_content)
                 time.sleep(3)

@@ -2,10 +2,38 @@ import hashlib
 import socket
 import os
 import time
+import json
 import _thread
 from datetime import datetime
 
 ADMINISTRATOR_PASSWORD = "9558aa73803ae90e3a742067cbe02f11"
+SERVER_CONFIG = {}
+PASUE_SERVICE = False
+
+
+def update_config():
+    global SERVER_CONFIG
+    with open('config.json', 'w') as f:
+        f.write(json.dumps(SERVER_CONFIG, indent=4))
+
+
+def get_config():
+    global SERVER_CONFIG
+    if not os.path.exists("config.json"):
+        SERVER_CONFIG = {
+            'admin_pass': '90b9aa7e25f80cf4f64e990b78a9fc5ebd6cecad',
+            'update_method': 'genius',
+            'genius_token': 'ADD HERE',
+            'youtube_token': 'ADD HERE',
+            'spotify_id': 'ADD HERE',
+            'spotify_secret': 'ADD HERE'
+        }
+        with open('config.json', 'w') as f:
+            f.write(json.dumps(SERVER_CONFIG, indent=4))
+    else:
+        with open('config.json', 'r') as f:
+            SERVER_CONFIG = json.loads(f.read())
+
 
 def get_ip():
     """
@@ -16,12 +44,13 @@ def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         s.connect(('10.255.255.255', 1))
-        IP = s.getsockname()[0]
+        ip = s.getsockname()[0]
     except Exception:
-        IP = '127.0.0.1'
+        ip = '127.0.0.1'
     finally:
         s.close()
-    return IP
+    return ip
+
 
 def send_to_client(client_socket, t, value):
     """
@@ -36,6 +65,7 @@ def send_to_client(client_socket, t, value):
     """
     msg = "%6s %s" % (t, value)
     client_socket.send(msg.encode())
+
 
 def get_string(t, msg, name=None, mac=None):
     """
@@ -55,7 +85,7 @@ def get_string(t, msg, name=None, mac=None):
     :rtype: str
     """
     final_msg = ""
-    match (t):
+    match t:
         case 'ERROR':
             final_msg += color['RED']
         case 'PFD':
@@ -72,11 +102,12 @@ def get_string(t, msg, name=None, mac=None):
             final_msg += color['BLACK'] + color['GREENBG']
         case 'GENIUS':
             final_msg += color['BLACK'] + color['YELLOWBG']
-    if name != None:
+    if name is not None:
         final_msg += t + " | " + name + " (" + mac + ")>" + color['DEFAULT'] + " " + msg
     else:
         final_msg += t + ">" + color['DEFAULT'] + " " + msg
     return final_msg
+
 
 def disconnect_clients(LISTENING_SOCKET, clients):
     """
@@ -91,7 +122,8 @@ def disconnect_clients(LISTENING_SOCKET, clients):
         send_to_client(client, 'SHT', get_string('SERVER', 'Shutting down...'))
     LISTENING_SOCKET.close()
 
-def serve_client(client_socket, address, LISTENING_SOCKET, clients):
+
+def serve_client(client_socket, LISTENING_SOCKET, clients):
     """
     This function manages all the Server-to-Client interaction
 
@@ -99,11 +131,12 @@ def serve_client(client_socket, address, LISTENING_SOCKET, clients):
     multiple clients at once
 
     :param client_socket: The Client's Socket
-    :param address: The Client's Address
     :param LISTENING_SOCKET: Server's Listening Socket
     :param clients: An array of connected clients
     :return: None
     """
+    global PASUE_SERVICE
+    global SERVER_CONFIG
     is_admin = False
     initial_data = client_socket.recv(1024).decode()
     initial_data = initial_data.split("|")
@@ -113,201 +146,259 @@ def serve_client(client_socket, address, LISTENING_SOCKET, clients):
     client_socket.send(WELCOME_MSG.encode())
 
     while True:
-        title = 'CLIENT' if not is_admin else 'ADMIN'
-        #  Checking if the client didn't closed his window
-        try:
-            data = client_socket.recv(1024).decode()
-        except ConnectionResetError:
-            print(get_string('SERVER', f'Client "{CLIENT_NAME}" ({MAC_ADDRESS}) disconnected (CLOSED WINDOW)'))
-            _thread.exit()
-        except ConnectionAbortedError:
-            _thread.exit()
+        if not PASUE_SERVICE:
+            title = 'CLIENT' if not is_admin else 'ADMIN'
+            #  Checking if the client didn't closed his window
+            try:
+                data = client_socket.recv(1024).decode()
+            except ConnectionResetError:
+                print(get_string('SERVER', f'Client "{CLIENT_NAME}" ({MAC_ADDRESS}) disconnected (CLOSED WINDOW)'))
+                _thread.exit()
+            except ConnectionAbortedError:
+                _thread.exit()
 
-        command = data[0:10].upper().strip()
-        try:
-            length = int(data[11:15])
-        except:
-            send_to_client(client_socket, 'STR',
-                           get_string('ERROR', "Bad command format\n") + get_string('INFO', "Please type 'HELP' to see available commands"))
-            print(get_string('ERROR', "Bad command inserted: " + data, CLIENT_NAME, MAC_ADDRESS))
-            continue
+            command = data[0:10].upper().strip()
+            try:
+                length = int(data[11:15])
+            except:
+                send_to_client(client_socket, 'STR',
+                               get_string('ERROR', "Bad command format\n") + get_string('INFO', "Please type 'HELP' "
+                                                                                                "to see available "
+                                                                                                "commands"))
+                print(get_string('ERROR', "Bad command inserted: " + data, CLIENT_NAME, MAC_ADDRESS))
+                continue
 
-        content = data[16:16 + length]
-        print(get_string(title, data, CLIENT_NAME, MAC_ADDRESS))
+            content = data[16:16 + length]
+            print(get_string(title, (data.upper() if not 'GOADMIN' in data.upper() else data[:16] + ("*" * len(data[16:16 + length]))), CLIENT_NAME, MAC_ADDRESS))
 
-        match (command):
-            # //////////////////////////////////////////////////////////////////////////////////////////////////////////
-            # --------------------------------------- Albums Commands --------------------------------------------------
-            # //////////////////////////////////////////////////////////////////////////////////////////////////////////
-            case 'GETALBUMS':
-                msg = color['TWITTER_BLUE'] + "\n\tAll Pink Floyd's Albums: " + color['DEFAULT']
-                send_to_client(client_socket,"LIST", msg + "|" + spotify.get_album_names())
-            case 'FINDALBUM':
-                if len(content) > 0:
-                    songs = spotify.is_an_album(content.title())
-                    msg = ""
-                    if songs == 0:
-                        msg = get_string('ERROR', content.title() + " isn't an Pink Floyd Album")
+            match (command):
+                # //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                # --------------------------------------- Albums Commands --------------------------------------------------
+                # //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                case 'GETALBUMS':
+                    msg = color['TWITTER_BLUE'] + "\n\tAll Pink Floyd's Albums: " + color['DEFAULT']
+                    send_to_client(client_socket,"LIST", msg + "|" + spotify.get_album_names(SERVER_CONFIG['spotify_id'],SERVER_CONFIG['spotify_secret']))
+                case 'FINDALBUM':
+                    if len(content) > 0:
+                        songs = spotify.is_an_album(content.title())
+                        msg = ""
+                        if songs == 0:
+                            msg = get_string('ERROR', content.title() + " isn't an Pink Floyd Album")
+                        else:
+                            msg = get_string('PFD', color['TWITTER_BLUE'] + content.title() + color[
+                                'DEFAULT'] + " is an Pink Floyd Album containing " + str(songs) + " songs")
+                        send_to_client(client_socket,"STR", msg)
                     else:
-                        msg = get_string('PFD', color['TWITTER_BLUE'] + content.title() + color[
-                            'DEFAULT'] + " is an Pink Floyd Album containing " + str(songs) + " songs")
-                    send_to_client(client_socket,"STR", msg)
-                else:
-                    send_to_client(client_socket, 'STR',
-                                   get_string('ERROR', 'Syntax Error: ' + command + " [Name of Album]"))
-            case 'ALBUMDUR':
-                if len(content) > 0:
-                    time_in_seconds = spotify.get_album_length(content.title())
-                    msg = ""
-                    if time_in_seconds != -1:
-                        t = datetime.fromtimestamp(time_in_seconds)
-                        t = t.strftime("%H:%M:%S")
-                        msg = get_string('PFD', "'" + content.title() + "' total duration: " + t)
+                        send_to_client(client_socket, 'STR',
+                                       get_string('ERROR', 'Syntax Error: ' + command + " [Name of Album]"))
+                case 'ALBUMDUR':
+                    if len(content) > 0:
+                        time_in_seconds = spotify.get_album_length(content.title(), SERVER_CONFIG['spotify_id'],SERVER_CONFIG['spotify_secret'])
+                        msg = ""
+                        if time_in_seconds != -1:
+                            t = datetime.fromtimestamp(time_in_seconds)
+                            t = t.strftime("%H:%M:%S")
+                            msg = get_string('PFD', "'" + content.title() + "' total duration: " + t)
+                        else:
+                            msg = get_string('ERROR', "No such album named '" + content.title() + "'")
+                        send_to_client(client_socket,'STR', msg)
                     else:
-                        msg = get_string('ERROR', "No such album named '" + content.title() + "'")
-                    send_to_client(client_socket,'STR', msg)
-                else:
-                    send_to_client(client_socket, 'STR',
-                                   get_string('ERROR', 'Syntax Error: ' + command + " [Name of Album]"))
-            case 'LISTSONGS':
-                if len(content) > 0:
-                    all_songs = spotify.get_song_names(content.title())
-                    msg = color['TWITTER_BLUE'] + "\n\tAll Songs in '" + content.title() + "' Album: " + color['DEFAULT']
-                    if all_songs != "-1":
-                        send_to_client(client_socket,'LIST', msg + "|" + all_songs)
+                        send_to_client(client_socket, 'STR',
+                                       get_string('ERROR', 'Syntax Error: ' + command + " [Name of Album]"))
+                case 'LISTSONGS':
+                    if len(content) > 0:
+                        all_songs = spotify.get_song_names(content.title())
+                        msg = color['TWITTER_BLUE'] + "\n\tAll Songs in '" + content.title() + "' Album: " + color['DEFAULT']
+                        if all_songs != "-1":
+                            send_to_client(client_socket,'LIST', msg + "|" + all_songs)
+                        else:
+                            send_to_client(client_socket,'STR', get_string('ERROR', "No such album named '" + content.title() + "'"))
                     else:
-                        send_to_client(client_socket,'STR', get_string('ERROR', "No such album named '" + content.title() + "'"))
-                else:
-                    send_to_client(client_socket, 'STR',
-                                   get_string('ERROR', 'Syntax Error: ' + command + " [Name of Album]"))
-            # //////////////////////////////////////////////////////////////////////////////////////////////////////////
-            # ---------------------------------------- Songs Commands --------------------------------------------------
-            # //////////////////////////////////////////////////////////////////////////////////////////////////////////
-            case 'FINDSONG':
-                if len(content) > 0:
-                    album = spotify.get_album_by_song(content)
-                    if album != -1:
-                        msg = get_string('PFD', "'" + content.title() + "' is a Pink Floyd song in the album '" + album + "'")
+                        send_to_client(client_socket, 'STR',
+                                       get_string('ERROR', 'Syntax Error: ' + command + " [Name of Album]"))
+                # //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                # ---------------------------------------- Songs Commands --------------------------------------------------
+                # //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                case 'FINDSONG':
+                    if len(content) > 0:
+                        album = spotify.get_album_by_song(content)
+                        if album != -1:
+                            msg = get_string('PFD', "'" + content.title() + "' is a Pink Floyd song in the album '" + album + "'")
+                        else:
+                            msg = get_string('ERROR', "'"+ content.title() + "' isn't a Pink Floyd song")
+                        send_to_client(client_socket, 'STR', msg)
                     else:
-                        msg = get_string('ERROR', "'"+ content.title() + "' isn't a Pink Floyd song")
-                    send_to_client(client_socket, 'STR', msg)
-                else:
-                    send_to_client(client_socket, 'STR',
-                               get_string('ERROR', 'Syntax Error: ' + command + " [Name of Song]"))
-            case 'HOWLONG':
-                if len(content) > 0:
-                    time_in_seconds = spotify.get_song_length(content)
-                    if time_in_seconds != -1:
-                        ti = datetime.fromtimestamp(time_in_seconds)
-                        ti = ti.strftime("%M:%S")
-                        msg = get_string('PFD', "'" + content.title() + "' duration is " + ti)
-                    else:
-                        msg = get_string('ERROR', "'" + content.title() + "' isn't a Pink Floyd song")
-                    send_to_client(client_socket, 'STR', msg)
-                else:
-                    send_to_client(client_socket, 'STR',
+                        send_to_client(client_socket, 'STR',
                                    get_string('ERROR', 'Syntax Error: ' + command + " [Name of Song]"))
-            case 'GETLYRICS':
-                if len(content) > 0:
-                    lyrics = spotify.get_lyrics(content)
-                    if lyrics == None:
-                        msg = get_string('ERROR', "No such song called '"+ content.title() +"'")
-                        send_to_client(client_socket, "STR", msg)
+                case 'HOWLONG':
+                    if len(content) > 0:
+                        time_in_seconds = spotify.get_song_length(content,SERVER_CONFIG['spotify_id'],SERVER_CONFIG['spotify_secret'])
+                        if time_in_seconds != -1:
+                            ti = datetime.fromtimestamp(time_in_seconds)
+                            ti = ti.strftime("%M:%S")
+                            msg = get_string('PFD', "'" + content.title() + "' duration is " + ti)
+                        else:
+                            msg = get_string('ERROR', "'" + content.title() + "' isn't a Pink Floyd song")
+                        send_to_client(client_socket, 'STR', msg)
                     else:
-                        send_to_client(client_socket, "LYRICS", content.title() + "|" + lyrics)
-                else:
-                    send_to_client(client_socket, 'STR', get_string('ERROR', 'Syntax Error: '+ command + " [Name of Song]"))
-            case 'PLAY':
-                if len(content) > 0:
-                    for i in range(3, 0, -1):
-                        send_to_client(client_socket, 'PLAY', get_string('PFD', 'Song will be played in ' + str(i)))
-                        time.sleep(1)
-                    send_to_client(client_socket, 'PLAY', get_string('PFD', 'Enjoy ' + content.title() + ' by Pink Floyd...'))
-                    youtube.play_song(content.lower())
-                else:
-                    send_to_client(client_socket, 'STR',
-                                   get_string('ERROR', 'Syntax Error: ' + command + " [Name of Song]"))
-            # //////////////////////////////////////////////////////////////////////////////////////////////////////////
-            # --------------------------------------- Lyrics Commands --------------------------------------------------
-            # //////////////////////////////////////////////////////////////////////////////////////////////////////////
-            case 'FINDLYRICS':
-                if len(content) > 0:
-                    songs = spotify.get_songs_by_lyrics(content)
-                    if len(songs) > 0:
-                        msg = "\n\t" + color['TWITTER_BLUE'] + "Song names with the lyrics: '" + content + "' in them" + color['DEFAULT']
-                        send_to_client(client_socket,"LIST", msg + "|" + songs)
+                        send_to_client(client_socket, 'STR',
+                                       get_string('ERROR', 'Syntax Error: ' + command + " [Name of Song]"))
+                case 'GETLYRICS':
+                    if len(content) > 0:
+                        lyrics = spotify.get_lyrics(content)
+                        if lyrics == None:
+                            msg = get_string('ERROR', "No such song called '"+ content.title() +"'")
+                            send_to_client(client_socket, "STR", msg)
+                        else:
+                            send_to_client(client_socket, "LYRICS", content.title() + "|" + lyrics)
                     else:
-                        send_to_client(client_socket, 'STR', get_string('ERROR', "No songs found with the lyrics: " + content))
-                else:
-                    send_to_client(client_socket, 'STR', get_string('ERROR', 'Syntax Error: '+ command + " [Lyrics]"))
-            case 'HELP':
-                send_to_client(client_socket,'STR', HELP_SCREEN + (ADMIN_HELP if is_admin else ""))
-            case 'CLEAR':
-                send_to_client(client_socket, 'CLEAR', WELCOME_MSG)
-            case 'QUIT':
-                send_to_client(client_socket, 'QUIT', get_string('PFD', 'Disconnecting from server...'))
-                print(get_string('SERVER', CLIENT_NAME + " (" + MAC_ADDRESS + ") is disconnected"))
-                clients.remove(client_socket)
-                time.sleep(3)
-                break
-            # //////////////////////////////////////////////////////////////////////////////////////////////////////////
-            # -------------------------------------- Administrator Commands --------------------------------------------
-            # //////////////////////////////////////////////////////////////////////////////////////////////////////////
-            case 'GOADMIN':
-                if len(content) > 0:
-                    if hashlib.md5(content.encode()).hexdigest() == ADMINISTRATOR_PASSWORD:
-                        print(get_string('ADMIN', 'Logged in as Administrator', CLIENT_NAME, MAC_ADDRESS))
-                        send_to_client(client_socket,"ADMIN", "1|"+get_string('SERVER', 'You now have Administrator privileges'))
-                        is_admin = True
+                        send_to_client(client_socket, 'STR', get_string('ERROR', 'Syntax Error: '+ command + " [Name of Song]"))
+                case 'PLAY':
+                    if len(content) > 0:
+                        is_a_song = True if spotify.get_album_by_song(content) != -1 else False
+                        if is_a_song:
+                            for i in range(3, 0, -1):
+                                send_to_client(client_socket, 'PLAY', get_string('PFD', 'Song will be played in ' + str(i)))
+                                time.sleep(1)
+                            send_to_client(client_socket, 'PLAY', get_string('PFD', 'Enjoy ' + content.title() + ' by Pink Floyd...'))
+                            youtube.play_song(content.lower(), SERVER_CONFIG['youtube_token'])
+                        else:
+                            send_to_client(client_socket, 'STR', get_string('ERROR', content.title() + ' is not a Pink Floyd song'))
                     else:
-                        send_to_client(client_socket,"ADMIN", "0|"+get_string('ERROR', 'Wrong password'))
-                else:
-                    send_to_client(client_socket, 'STR', get_string('ERROR', 'Syntax Error: '+ command + " [Password]"))
-            case 'UPDATE':
-                if is_admin:
-                    send_to_client(client_socket, 'UPDATE', get_string('SERVER', '1 - Genius (Takes time)') + "\n" + get_string('SERVER', '2 - Spotify (Takes less time)'))
-                    data = client_socket.recv(1024).decode()
-                    command = data[0:10].upper().strip()
-                    msg = int(data[11:])
-                    if msg == 1:
-                        print(get_string('ADMIN', 'Updating database from Genius.com...', CLIENT_NAME, MAC_ADDRESS))
-                        send_to_client(client_socket, 'UPDATE', get_string('SERVER', 'Updating database from Genius.com...'))
-                        genius.update_db()
+                        send_to_client(client_socket, 'STR',
+                                       get_string('ERROR', 'Syntax Error: ' + command + " [Name of Song]"))
+                # //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                # --------------------------------------- Lyrics Commands --------------------------------------------------
+                # //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                case 'FINDLYRICS':
+                    if len(content) > 0:
+                        songs = spotify.get_songs_by_lyrics(content)
+                        if len(songs) > 0:
+                            msg = "\n\t" + color['TWITTER_BLUE'] + "Song names with the lyrics: '" + content + "' in them" + color['DEFAULT']
+                            send_to_client(client_socket,"LIST", msg + "|" + songs)
+                        else:
+                            send_to_client(client_socket, 'STR', get_string('ERROR', "No songs found with the lyrics: " + content))
                     else:
-                        print(get_string('ADMIN', 'Updating database from Spotify.com...', CLIENT_NAME, MAC_ADDRESS))
-                        send_to_client(client_socket, 'UPDATE',
-                                       get_string('SERVER', 'Updating database from Spotify.com...'))
-                        spotify.update_db()
-                    send_to_client(client_socket, 'UPDATE', get_string('SERVER', 'Database has been updated successfully!'))
-                else:
-                    send_to_client(client_socket, 'UPDATE', get_string('ERROR', "You don't have Administrator privileges"))
-            case 'GOUSER':
-                if is_admin:
-                    is_admin = False
-                    send_to_client(client_socket,'ADMIN', '0|'+ get_string('SERVER', 'You no longer have Administrator privileges'))
-                else:
-                    send_to_client(client_socket,'STR', get_string('ERROR', "You don't have Administrator privileges"))
-            case 'SCLEAR':
-                if is_admin:
-                    os.system('cls')
-                    print(get_string('ADMIN', 'Cleared the log', CLIENT_NAME, MAC_ADDRESS))
-                    msg = get_string('SERVER', 'Log cleared')
-                else:
-                    msg = get_string('ERROR', "You don't have Administrator privileges")
-                send_to_client(client_socket, 'STR', msg)
-            case 'SHUTDOWN':
-                if is_admin:
-                    disconnect_clients(LISTENING_SOCKET, clients)
-                    exit()
-                else:
-                    send_to_client(client_socket, 'STR', get_string('ERROR', "You don't have Administrator privileges"))
-            # //////////////////////////////////////////////////////////////////////////////////////////////////////////
-            # ----------------------------------------- Unknown Command ------------------------------------------------
-            # //////////////////////////////////////////////////////////////////////////////////////////////////////////
-            case _:
-                send_to_client(client_socket,"STR", get_string('ERROR', "Command '" + color['RED'] + command + color[
-                    'DEFAULT'] + "' is unknown!") + "\n" +
-                               get_string('ERROR', "Use 'HELP' to see available commands"))
+                        send_to_client(client_socket, 'STR', get_string('ERROR', 'Syntax Error: '+ command + " [Lyrics]"))
+                # //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                # ------------------------------------------ Utility Commands ----------------------------------------------
+                # //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                case 'HELP':
+                    send_to_client(client_socket,'STR', HELP_SCREEN + (ADMIN_HELP if is_admin else ""))
+                case 'CLEAR':
+                    send_to_client(client_socket, 'CLEAR', WELCOME_MSG)
+                case 'QUIT':
+                    send_to_client(client_socket, 'QUIT', get_string('PFD', 'Disconnecting from server...'))
+                    print(get_string('SERVER', CLIENT_NAME + " (" + MAC_ADDRESS + ") is disconnected"))
+                    clients.remove(client_socket)
+                    time.sleep(3)
+                    break
+                # //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                # -------------------------------------- Administrator Commands --------------------------------------------
+                # //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                case 'GOADMIN':
+                    if len(content) > 0:
+                        if not is_admin:
+                            md5 = hashlib.md5(content.encode()).hexdigest()
+                            sha1 = hashlib.sha1(md5.encode()).hexdigest()
+                            if sha1 == SERVER_CONFIG['admin_pass']:
+                                print(get_string('ADMIN', 'Logged in as Administrator', CLIENT_NAME, MAC_ADDRESS))
+                                send_to_client(client_socket,"ADMIN", "1|"+get_string('SERVER', 'You now have Administrator privileges'))
+                                is_admin = True
+                            else:
+                                send_to_client(client_socket,"ADMIN", "0|"+get_string('ERROR', 'Wrong password'))
+                        else:
+                            send_to_client(client_socket, 'STR', get_string('ERROR', "You already have Administrator privileges"))
+                    else:
+                        send_to_client(client_socket, 'STR', get_string('ERROR', 'Syntax Error: '+ command + " [Password]"))
+                case 'UPDATE':
+                    if is_admin:
+                        PASUE_SERVICE = True
+                        if SERVER_CONFIG['update_method'] == 'genius':
+                            genius.update_db(force_update=True, token=SERVER_CONFIG['genius_token'])
+                        else:
+                            spotify.update_db(SERVER_CONFIG['spotify_id'],SERVER_CONFIG['spotify_secret'])
+                        send_to_client(client_socket, 'STR', get_string('SERVER', 'Database has been updated successfully!'))
+                        PASUE_SERVICE = False
+                    else:
+                        send_to_client(client_socket, 'STR', get_string('ERROR', "You don't have Administrator privileges"))
+                case 'GOUSER':
+                    if is_admin:
+                        is_admin = False
+                        send_to_client(client_socket,'ADMIN', '0|'+ get_string('SERVER', 'You no longer have Administrator privileges'))
+                    else:
+                        send_to_client(client_socket,'STR', get_string('ERROR', "You don't have Administrator privileges"))
+                case 'SCLEAR':
+                    if is_admin:
+                        os.system('cls')
+                        print(get_string('ADMIN', 'Cleared the log', CLIENT_NAME, MAC_ADDRESS))
+                        msg = get_string('SERVER', 'Log cleared')
+                    else:
+                        msg = get_string('ERROR', "You don't have Administrator privileges")
+                    send_to_client(client_socket, 'STR', msg)
+                case 'SHUTDOWN':
+                    if is_admin:
+                        disconnect_clients(LISTENING_SOCKET, clients)
+                        exit()
+                    else:
+                        send_to_client(client_socket, 'STR', get_string('ERROR', "You don't have Administrator privileges"))
+                case 'SET':
+                    if is_admin:
+                        admin_choice = content.upper()
+                        match (admin_choice):
+                            case 'PASS':
+                                send_to_client(client_socket, 'CNFG', get_string('SERVER', 'Enter old password:'))
+                                data = client_socket.recv(1024).decode()
+                                md5 = hashlib.md5(data.encode()).hexdigest()
+                                sha1 = hashlib.sha1(md5.encode()).hexdigest()
+                                if sha1 == SERVER_CONFIG['admin_pass']:
+                                    send_to_client(client_socket, 'CNFG', get_string('SERVER', 'Enter new password:'))
+                                    data = client_socket.recv(1024).decode()
+                                    md5 = hashlib.md5(data.encode()).hexdigest()
+                                    sha1 = hashlib.sha1(md5.encode()).hexdigest()
+                                    SERVER_CONFIG['admin_pass'] = sha1
+                                    send_to_client(client_socket, 'STR', get_string('SERVER', 'Password changed successfully!'))
+                                    update_config()
+                                    print(get_string(title, 'Changed the Administrator password', CLIENT_NAME, MAC_ADDRESS))
+                                else:
+                                    send_to_client(client_socket, 'STR', get_string('ERROR', 'Wrong password'))
+                            case 'METHOD':
+                                send_to_client(client_socket, 'CNFG', get_string('SERVER', 'Choose an update method (G - Genius, S - Spotify):'))
+                                data = client_socket.recv(1024).decode()
+                                match(data[0].upper()):
+                                    case 'G':
+                                        if SERVER_CONFIG['update_method'] != 'genius':
+                                            SERVER_CONFIG['update_method'] = 'genius'
+                                            send_to_client(client_socket, 'STR',
+                                                           get_string('SERVER', 'Update method changed to Genius'))
+                                            update_config()
+                                        else:
+                                            send_to_client(client_socket, 'STR',
+                                                           get_string('ERROR', 'Update method is already Genius'))
+                                    case 'S':
+                                        if SERVER_CONFIG['update_method'] != 'spotify':
+                                            SERVER_CONFIG['update_method'] = 'spotify'
+                                            send_to_client(client_socket, 'STR',
+                                                           get_string('SERVER', 'Update method changed to Spotify'))
+                                            update_config()
+                                        else:
+                                            send_to_client(client_socket, 'STR',
+                                                           get_string('ERROR', 'Update method is already Spotify'))
+                                    case _:
+                                        send_to_client(client_socket, 'STR', get_string('ERROR', 'Syntax Error: SET METHOD [G/S]'))
+                            case 'HELP':
+                                send_to_client(client_socket, 'STR', get_string('STR', SET_HELP))
+                            case _:
+                                send_to_client(client_socket, 'STR', get_string('ERROR', 'Syntax Error: SET [COMMAND], try: SET HELP for more information'))
+                    else:
+                        send_to_client(client_socket, 'STR', get_string('ERROR', "You don't have Administrator privileges"))
+                # //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                # ----------------------------------------- Unknown Command ------------------------------------------------
+                # //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                case _:
+                    send_to_client(client_socket,"STR", get_string('ERROR', "Command '" + color['RED'] + command + color[
+                        'DEFAULT'] + "' is unknown!") + "\n" +
+                                   get_string('ERROR', "Use 'HELP' to see available commands"))
     client_socket.close()
 
 
@@ -367,17 +458,26 @@ ADMIN_HELP = f"""
 {"%31s - %s" % ("UPDATE" + color['DEFAULT'], "Update the Pink Floyd Database (Takes few minutes)")}
 {"%38s - %s" % (color['GREEN'] + "SHUTDOWN" + color['DEFAULT'], "Shutdown the server")}
 {"%38s - %s" % (color['GREEN'] + "SCLEAR" + color['DEFAULT'], "Clean the server log")}
+{"%38s - %s" % (color['GREEN'] + "SET" + color['DEFAULT'], "Change server settings")}
 {"%38s - %s" % (color['GREEN'] + "GOUSER" + color['DEFAULT'], "Go back to User Privileges")}
 """
 
+SET_HELP = f"""
+{color['GREEN']} Avaliable SET Commands:
+{"%31s - %s" % ("SET METHOD" + color['DEFAULT'], "Set update method for database")}
+{"%38s - %s" % (color['GREEN'] + "SET PASS" + color['DEFAULT'], "Change Administrator Password")}
+"""
+
+
 def main():
+    get_config()
     # Cleans the screen
     os.system('cls')
     # Checks if there's a database, if no, creates it
     if not os.path.exists('data/albums_genius'):
         print(get_string('SERVER', 'Building database for the first time...'))
         os.mkdir('data/albums_genius')
-        genius.update_db()
+        genius.update_db(SERVER_CONFIG['genius_token'])
     os.system('cls')
     # Opening the listening socket and informs that the server is up and running
     LISTENING_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -397,7 +497,7 @@ def main():
         # Adding the new client to the list of active clients
         clients.append(client_socket)
         # Starting a new thread for client so the server can serve more people simultaneously
-        _thread.start_new_thread(serve_client, (client_socket, client_address, LISTENING_SOCKET, clients, ))
+        _thread.start_new_thread(serve_client, (client_socket, LISTENING_SOCKET, clients, ))
 
 if __name__ == "__main__":
     main()
