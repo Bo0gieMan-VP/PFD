@@ -477,7 +477,7 @@ def main():
     if not os.path.exists('data/albums_genius'):
         print(get_string('SERVER', 'Building database for the first time...'))
         os.mkdir('data/albums_genius')
-        genius.update_db(SERVER_CONFIG['genius_token'])
+        genius.update_db(SERVER_CONFIG['genius_token'], force_update=True)
     os.system('cls')
     # Opening the listening socket and informs that the server is up and running
     LISTENING_SOCKET = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
