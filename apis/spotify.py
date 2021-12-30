@@ -61,11 +61,11 @@ def is_an_album(album):
         return len(songs)
     return 0
 
-def get_all_albums():
+def get_all_albums(client_id, client_secret):
     lz_uri = 'spotify:artist:0k17h0D3J5VfsdmQ1iZtE9'
     spotify = spotipy.Spotify(
-        client_credentials_manager=SpotifyClientCredentials(client_id='6057e942566849288703b1ccbb5a2e7b',
-                                                            client_secret='b781ffaf10d448078550794bd636bdc5'))
+        client_credentials_manager=SpotifyClientCredentials(client_id=client_id,
+                                                            client_secret=client_secret))
     results = spotify.artist_albums(lz_uri, album_type='album', limit='50', offset='0')
     albums = results['items']
     while results['next']:
@@ -86,20 +86,17 @@ def get_all_albums():
             album_names.remove(album['name'])
 
     albums = new_albums
-    return albums
+    return (spotify, albums)
 
-def get_album_names():
-    albums = get_all_albums()
+def get_album_names(client_id, client_secret):
+    spotify , albums = get_all_albums(client_id, client_secret)
     album_names = []
     for album in albums:
         album_names.append(album['name'])
     return ",".join(album_names)
 
-def get_tracks(album):
+def get_tracks(album, spotify):
     lz_uri = 'spotify:album:'+album['id']
-    spotify = spotipy.Spotify(
-        client_credentials_manager=SpotifyClientCredentials(client_id='6057e942566849288703b1ccbb5a2e7b',
-                                                            client_secret='b781ffaf10d448078550794bd636bdc5'))
     results = spotify.album_tracks(lz_uri, limit='50', offset='0')
     tracks = results['items']
     while results['next']:
@@ -118,9 +115,10 @@ def get_tracks(album):
 
     return tracks
 
-def get_song_length(songname):
-    for album in get_all_albums():
-        tracks = get_tracks(album)
+def get_song_length(songname, client_id, client_secret):
+    spotify, albums = get_all_albums(client_id=client_id, client_secret=client_secret)
+    for album in albums:
+        tracks = get_tracks(album, spotify)
         for track in tracks:
             if track['name'].lower() == songname.lower():
                 return (int(track['duration_ms']) / 1000)
@@ -141,15 +139,15 @@ def get_song_names(album):
     else:
         return "-1"
 
-def get_album_length(album_name):
-    albums = get_all_albums()
+def get_album_length(album_name,client_id, client_secret):
+    spotify, albums = get_all_albums(client_id, client_secret)
     current_album = None
     for album in albums:
         if album['name'] == album_name:
             current_album = album
             break
     if current_album != None:
-        tracks = get_tracks(current_album)
+        tracks = get_tracks(current_album, spotify)
         sum = 0
         for track in tracks:
             sum += int(track['duration_ms'])
@@ -157,10 +155,10 @@ def get_album_length(album_name):
     else:
         return -1
 
-def create_folder(album):
+def create_folder(album, spotify):
     if not os.path.exists("data/albums_spotify/" + album['name']):
         os.mkdir("data/albums_spotify/" + album['name'])
-    tracks = [clean_name(i['name']) for i in get_tracks(album)]
+    tracks = [clean_name(i['name']) for i in get_tracks(album, spotify)]
     for track in tracks:
         song_path = "data/albums_spotify/" + album['name'] + "/" + track + ".txt"
         if "live" not in track.lower():
@@ -190,12 +188,12 @@ def get_songs_by_lyrics(lyrics):
                     songs_list.append(song.replace(".txt", ""))
     return ",".join(songs_list)
 
-def update_db():
+def update_db(client_id, client_secret):
     print(get_string('SPOTIFY', 'Getting all albums information...'))
-    pink_floyd_albums = get_all_albums()
+    spotify, pink_floyd_albums = get_all_albums(client_id, client_secret)
     print(get_string('SPOTIFY', 'Working on lyrics...'))
     for album in pink_floyd_albums:
-        create_folder(album)
+        create_folder(album, spotify)
     print(get_string('SPOTIFY', 'Done updating!'))
 
 def main():

@@ -52,10 +52,11 @@ def get_lyrics_from_web(path):
         lyrics += i + "\n"
     return lyrics
 
-genius = lyricsgenius.Genius(access_token='mviROzWLzm_ygPnLMVaghIXr5xEPCPFUfWi_zZQTR5tGTap6PU6Me34impgkXpIO',
-                             excluded_terms=["Remix", "Live"], remove_section_headers=True, verbose=False)
 
-def update_db(force_update=False):
+
+def update_db(token, force_update=False):
+    genius = lyricsgenius.Genius(access_token=token,
+                                 excluded_terms=["Remix", "Live"], remove_section_headers=True, verbose=False)
     if not force_update and not os.path.exists('data/genius_database.json'):
         force_update = True
     if force_update:
