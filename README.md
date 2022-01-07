@@ -155,6 +155,7 @@ _remember, if you don't know what you do you can always type `HELP`_
 ### Utility Commands
 | Command   |   Description   |
 |:----------|:----------------|
+| **HELP** | See available commands |
 | **CLEAR** | Clear the client's window |
 | **QUIT** | Kill the connection and exit the program |
 
