@@ -92,7 +92,7 @@ On the Client-side the client can use commands to get the information from the s
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-**Default Administrator password is: admin**
+**Default Administrator password is** ```admin```
 
 ### STEP 1
 When running the server for the first time the server will start building it's database<br />
