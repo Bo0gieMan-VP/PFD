@@ -149,6 +149,7 @@ _remember, if you don't know what you do you can always type `HELP`_
 |:----------|:----------------|
 | **METHOD** | Change the database updating method<br>(G = Genius / S = Spotify) |
 | **PASS** | Change administator password |
+| **HELP** | See available SET commands |
 
 
 ### Utility Commands
