@@ -142,6 +142,13 @@ _remember, if you don't know what you do you can always type `HELP`_
 | **SHUTDOWN** | Shut the server down |
 | **SCLEAR** | Clear the server's window |
 | **GOUSER** | Get User Privileges |
+| **SET** | Change the server config |
+
+### SET Commands
+| Command   |   Description   |
+|:----------|:----------------|
+| **METHOD** | Change the database updating method<br>(G = Genius / S = Spotify) |
+| **PASS** | Change administator password |
 
 
 ### Utility Commands
